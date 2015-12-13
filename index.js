@@ -141,7 +141,12 @@ class ActionContainer {
                 return;
             }
         }
-        navigator.push(route);
+        if (route.schema === "popup") {
+          var element = React.createElement(route.component, Object.assign({}, route, page.data));
+          this.setState({modal: element});
+        } else {
+          navigator.push(route);
+        }
     }
 
     /***
@@ -510,18 +515,30 @@ class Router extends React.Component {
         const Footer = this.props.footer;
         const footer = Footer ? <Footer {...this.props} {...this.state}/> : null;
 
+        let modal = null;
+        if (this.state.modal){
+            modal = (<View style={styles.container}>
+                    <View style={[styles.container,{backgroundColor:'black',opacity:0.5},this.props.popupStyle]}/>
+                    {this.state.modal}
+
+                </View>
+            );
+        }
+
+
         return (
             <View style={styles.transparent}>
                 {header}
-                <ExNavigator ref="nav"
-                             initialRoute={new ExRoute(initialRoute, this.schemas)}
-                             style={styles.transparent}
-                             sceneStyle={{ paddingTop: 0 }}
-                             showNavigationBar={!this.props.hideNavBar}
-                    {...this.props}
-
+                <ExNavigator
+                  ref="nav"
+                  initialRoute={new ExRoute(initialRoute, this.schemas)}
+                  style={styles.transparent}
+                  sceneStyle={{ paddingTop: 0 }}
+                  showNavigationBar={!this.props.hideNavBar}
+                  {...this.props}
                 />
                 {footer}
+                {modal}
             </View>
         );
 
